@@ -1,4 +1,7 @@
 ---
+- name: merge kafka_server_properties with role defaults
+  set_fact:
+    kafka_server_properties: "{{ default_kafka_server_properties | combine(kafka_server_properties) }}"
 - name: Load OS-specific variables
   include_vars: "{{ item }}"
   with_first_found:
@@ -60,13 +63,14 @@
   tags:
     - kafka_dirs
 
-- name: Create directory for kafka data log files
+- name: Create directories for kafka data log files
   file:
-    path: '{{ kafka_data_log_dirs }}'
+    path: '{{ item }}'
     state: directory
     group: '{{ kafka_group }}'
     owner: '{{ kafka_user }}'
     mode: 0755
+  loop: '{{ kafka_server_properties.log_dirs }}'
   tags:
     - kafka_dirs
 
